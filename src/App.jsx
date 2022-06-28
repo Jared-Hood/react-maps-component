@@ -4,6 +4,7 @@ import { pinDefault, pinHovered, pinSelected } from './components/MapPin';
 import './App.css'
 
 import { GoogleMaps } from '@yext/components-tsx-maps';
+import Clusterer from './components/Clusterer';
 
 const locations = [
   {
@@ -56,9 +57,11 @@ function App() {
   return (
     <>
       <Map mapProvider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14} setAutoBounds={true}>
-        {locations.map((location, index) => 
-          <Marker key={location.id} id={location.id} index={index} coordinate={location.coordinate} height={40} width={40} icons={iconsForEntity}/>
-        )}
+        <Clusterer>
+          {locations.map((location, index) => 
+            <Marker key={location.id} id={location.id} index={index} coordinate={location.coordinate} height={40} width={40} icons={iconsForEntity}/>
+          )}
+        </Clusterer>
       </Map>
       <Map mapProvider={GoogleMaps} clientKey={'gme-yextinc'}>
         <Marker id={'123'} coordinate={{lat: 39.83, lng: -98.58}} height={80} width={80} pinClick={pinClick} />
