@@ -26,6 +26,26 @@ const iconsForEntity = (index) => ({
   selected: pinSelected({index: index, backgroundColor: '#1B998B'})
 });
 
+// Coud do something like this for each icon state
+// So that .withPropertiesForStatus(() => {}) wouldn't need to be specified as a props
+let completeIcons = {
+  default: {
+    icon: pinDefault({index: index, backgroundColor: '#F46036'}),
+    height: 24,
+    width: 24,
+  },
+  hovered: {
+    icon: pinHovered({index: index, backgroundColor: '#2E294E'}),
+    height: 24,
+    width: 24
+  },
+  selected: {
+    icon: pinSelected({index: index, backgroundColor: '#2E294E'}),
+    height: 48,
+    width: 48
+  }
+}
+
 function App() {
   return (
     <Map mapProvider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14}>
