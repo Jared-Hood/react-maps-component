@@ -8,7 +8,7 @@ import { MapOptions } from "@yext/components-tsx-maps";
 export const MapContext = createContext(null);
 
 export const Map = (props) => {
-  const { mapProvider, clientKey, apiKey, defaultCenter, defaultZoom } = props;
+  const { mapProvider, clientKey, apiKey, defaultCenter, defaultZoom, setAutoBounds } = props;
 
   const mapWrapper = useRef();
 	const [map, setMap] = useState();

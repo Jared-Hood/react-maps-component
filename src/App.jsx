@@ -28,31 +28,42 @@ const iconsForEntity = (index) => ({
 
 // Coud do something like this for each icon state
 // So that .withPropertiesForStatus(() => {}) wouldn't need to be specified as a props
-let completeIcons = {
-  default: {
-    icon: pinDefault({index: index, backgroundColor: '#F46036'}),
-    height: 24,
-    width: 24,
-  },
-  hovered: {
-    icon: pinHovered({index: index, backgroundColor: '#2E294E'}),
-    height: 24,
-    width: 24
-  },
-  selected: {
-    icon: pinSelected({index: index, backgroundColor: '#2E294E'}),
-    height: 48,
-    width: 48
+let completeIcons = (index) => {
+  return {
+    default: {
+      icon: pinDefault({index: index, backgroundColor: '#F46036'}),
+      height: 24,
+      width: 24,
+    },
+    hovered: {
+      icon: pinHovered({index: index, backgroundColor: '#2E294E'}),
+      height: 24,
+      width: 24
+    },
+    selected: {
+      icon: pinSelected({index: index, backgroundColor: '#2E294E'}),
+      height: 48,
+      width: 48
+    }
   }
+}
+
+const pinClick = () => {
+  window.open('https://yext.com', '_blank')
 }
 
 function App() {
   return (
-    <Map mapProvider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14}>
-      {locations.map((location, index) => 
-        <Marker key={location.id} id={location.id} index={index} coordinate={location.coordinate} height={40} width={40} icons={iconsForEntity}/>
-      )}
-    </Map>
+    <>
+      <Map mapProvider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14} setAutoBounds={true}>
+        {locations.map((location, index) => 
+          <Marker key={location.id} id={location.id} index={index} coordinate={location.coordinate} height={40} width={40} icons={iconsForEntity}/>
+        )}
+      </Map>
+      <Map mapProvider={GoogleMaps} clientKey={'gme-yextinc'}>
+        <Marker id={'123'} coordinate={{lat: 39.83, lng: -98.58}} height={80} width={80} pinClick={pinClick} />
+      </Map>
+    </>
   )
 }
 

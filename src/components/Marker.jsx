@@ -11,7 +11,7 @@ const defaultIcons = (index) => {
   }
 };
 
-export const Marker = ({ id, index, coordinate, height, width, icons }) => {
+export const Marker = ({ id, index, coordinate, height, width, icons, pinClick }) => {
   const { map, selectedMarkerId, setSelectedMarkerId }  = useContext(MapContext);
   const [pinHeight, setpinHeight] = useState(height ? height : 39);
   const [pinWidth, setpinWidth] = useState(width ? width : 33);
@@ -29,6 +29,9 @@ export const Marker = ({ id, index, coordinate, height, width, icons }) => {
 
   const pinClickHandler = () => {
     setPinStatus({ ...pinStatusRef.current, selected: true });
+    if (pinClick) {
+      pinClick();
+    }
     setSelectedMarkerId(id);
   };
   const pinHoverHandler = (hovered) => {
