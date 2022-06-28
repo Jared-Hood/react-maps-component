@@ -28,7 +28,7 @@ const iconsForEntity = (index) => ({
 
 // Coud do something like this for each icon state
 // So that .withPropertiesForStatus(() => {}) wouldn't need to be specified as a props
-let completeIcons = (index) => {
+let completeIcons = (index) => { // does this need to be declared here 
   return {
     default: {
       icon: pinDefault({index: index, backgroundColor: '#F46036'}),

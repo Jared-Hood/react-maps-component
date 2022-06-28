@@ -17,7 +17,7 @@ export const Marker = ({ id, index, coordinate, height, width, icons, pinClick }
   const [pinWidth, setpinWidth] = useState(width ? width : 33);
   const pinIcons = icons ? icons : defaultIcons;
 
-  const [pinStatus, setPinStatus] = useState({
+  const [pinStatus, setPinStatus] = useState({  // pass through status prop instead of declaring here
     selected: false,
     hovered: false,
     focused: false
@@ -51,7 +51,8 @@ export const Marker = ({ id, index, coordinate, height, width, icons, pinClick }
   
   // useMemo here? like https://github.com/visgl/react-map-gl/blob/7.0-release/src/components/marker.ts#L91
   // For click, hover, and focus I think the event handlers should be moved to here for the
-  // HTMLProviderPin classes, which include MapBox, Google
+  // HTMLProviderPin classes, which include MapBox, Google.
+  // We could make a getElement() function and then directly add onClick to that
 
   const marker = useMemo(() => {
     const pinOptions = map.newPinOptions()
@@ -77,6 +78,10 @@ export const Marker = ({ id, index, coordinate, height, width, icons, pinClick }
     marker.setClickHandler(() => { pinClickHandler() });
     marker.setHoverHandler((hovered) => { pinHoverHandler(hovered) });
     marker.setFocusHandler((focused) => { pinFocusHandler(focused) });
+
+    return () => {
+      marker.setMap(null);
+    }
   }, []);
 
   useEffect(() => {
