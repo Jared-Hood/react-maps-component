@@ -34,27 +34,54 @@ const propertiesForStatus = (status) => {
     .setHeight(status.selected ? 50 : 40)
     .setWidth(status.selected ? 50 : 40);
 };
-const markerClickHandler = () => {};
-const markerHoverHandler = () => {};
-const markerFocusHandler = () => {};
+const markerStatusOptions = {
+  selected: false,
+  hovered: false,
+  focused: false
+};
 
 // App here would be a LocationMap or LocatorMap component
 function App() {
   // Save shared state for selected markers
   const [selectedMarkerId, setSelectedMarkerId] = useState('');
 
+  // Set the state specific to these events
+  // Each function is passed the setter and current state ref
+  const markerClickHandler = (currentStatusState, setStatusState) => {
+    setStatusState({...currentStatusState, selected: true });
+  };
+  const markerFocusHandler = (focused, currentStatusState, setStatusState) => {
+    setStatusState({...currentStatusState, focused: focused });
+  };
+  const markerHoverHandler = (hovered, currentStatusState, setStatusState) => {
+    setStatusState({...currentStatusState, hovered: hovered });
+  };
+
+  const singlePinClickHandler = () => {
+    window.open('https://yext.com', '_blank');
+  }
+
   return (
     <>
       <Map provider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14}>
         {locations.map((location, index) => 
-          <Marker key={location.id} id={location.id} index={index} selectedMarkerId={selectedMarkerId} setSelectedMarkerId={setSelectedMarkerId}
-                  markerRenderer={() => MarkerRenderer({ index: index, coordinate: location.coordinate, provider: GoogleMaps, height: 40, width: 40, icons: iconsForEntity, propertiesForStatus: propertiesForStatus })}
+          <Marker key={location.id}
+                  id={location.id}
+                  index={index}
+                  selectedMarkerId={selectedMarkerId}
+                  setSelectedMarkerId={setSelectedMarkerId}
+                  markerStatusOptions={markerStatusOptions}
+                  markerClickHandler={markerClickHandler}
+                  markerFocusHandler={markerFocusHandler}
+                  markerHoverHandler={markerHoverHandler}
+                  markerRenderer={ () => MarkerRenderer({ index: index, coordinate: location.coordinate, provider: GoogleMaps, height: 40, width: 40, icons: iconsForEntity, propertiesForStatus: propertiesForStatus }) }
           />
         )}
       </Map>
       <Map provider={GoogleMaps} clientKey={'gme-yextinc'}>
-        <Marker id={'123'} pinClick={() => { window.open('https://yext.com', '_blank') }} 
-          markerRenderer={() => MarkerRenderer({ coordinate: { lat: 38.8954, lng: -77.0698 }, provider: GoogleMaps, height: 40, width: 40, icons: () => { return {'default': pinDefault({})} } })}
+        <Marker id={'123'}
+                markerClickHandler={singlePinClickHandler}
+                markerRenderer={() => MarkerRenderer({ coordinate: { lat: 38.8954, lng: -77.0698 }, provider: GoogleMaps, height: 40, width: 40, icons: () => { return {'default': pinDefault({})} } })}
         />
       </Map>
     </>
