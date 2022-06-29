@@ -1,20 +1,16 @@
 import { MapContext } from "./Map";
-import { useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect } from "react";
 
 const defaultProps = {
   markerClickHandler: (id) => {},
-  markerFocusHandler: (focused, id) => {},
   markerHoverHandler: (hovered, id) => {},
+  markerFocusHandler: (focused, id) => {},
   markerStatusOptions: {},
 }
 
 export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHoverHandler, markerRenderer, markerStatusOptions }) => {
   const { map }  = useContext(MapContext);
   const marker = markerRenderer();
-
-  const [pinStatus, setPinStatus] = useState(markerStatusOptions);
-  const pinStatusRef = useRef({});
-  pinStatusRef.current = pinStatus;
 
   const pinClickHandler = (id) => {
     markerClickHandler(id);
@@ -27,7 +23,7 @@ export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHover
   };
 
   useEffect(() => {
-    setPinStatus({ ...pinStatusRef.current, ...markerStatusOptions });
+    marker.setStatus({ ...markerStatusOptions });
   }, [markerStatusOptions]);
 
   useEffect(() => {
@@ -40,12 +36,6 @@ export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHover
       marker.setMap(null);
     }
   }, []);
-
-  useEffect(() => {
-    if (marker) {
-      marker.setStatus({...pinStatus});
-    }
-  }, [pinStatus]);
 }
 
 Marker.defaultProps = defaultProps;

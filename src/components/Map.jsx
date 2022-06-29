@@ -76,7 +76,7 @@ export const Map = (props) => {
         {map && (
           <MapContext.Provider value={{
             map: map,
-            provider: provider
+            provider: provider,
           }}>
             {props.children}
           </MapContext.Provider>

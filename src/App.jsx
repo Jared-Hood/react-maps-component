@@ -39,8 +39,8 @@ const propertiesForStatus = (status) => {
 function App() {
   // Save shared state for selected markers
   const [selectedMarkerId, setSelectedMarkerId] = useState('');
-  const [hoveredMarkerId, setHoveredMarkerId] = useState('');
   const [focusedMarkerId, setFocusedMarkerId] = useState('');
+  const [hoveredMarkerId, setHoveredMarkerId] = useState('');
 
 
   const markerClickHandler = (id) => {
@@ -66,20 +66,20 @@ function App() {
                   index={index}
                   markerStatusOptions={{
                     selected: location.id === selectedMarkerId,
-                    hovered: location.id === hoveredMarkerId,
                     focused: location.id === focusedMarkerId,
+                    hovered: location.id === hoveredMarkerId,
                   }}
                   markerClickHandler={markerClickHandler}
                   markerFocusHandler={markerFocusHandler}
                   markerHoverHandler={markerHoverHandler}
-                  markerRenderer={ () => MarkerRenderer({ index: index, coordinate: location.coordinate, height: 40, width: 40, icons: iconsForEntity, propertiesForStatus: propertiesForStatus }) }
+                  markerRenderer={ () => MarkerRenderer({ coordinate: location.coordinate, icons: iconsForEntity, index: index, propertiesForStatus: propertiesForStatus }) }
           />
         )}
       </Map>
       <Map provider={GoogleMaps} clientKey={'gme-yextinc'}>
         <Marker id={'123'}
                 markerClickHandler={singlePinClickHandler}
-                markerRenderer={() => MarkerRenderer({ coordinate: { lat: 38.8954, lng: -77.0698 }, provider: GoogleMaps, height: 40, width: 40, icons: () => { return {'default': pinDefault({})} } })}
+                markerRenderer={() => MarkerRenderer({ coordinate: { lat: 38.8954, lng: -77.0698 }, icons: () => { return {'default': pinDefault({})} } })}
         />
       </Map>
     </>
