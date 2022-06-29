@@ -5,6 +5,7 @@ import { pinDefault, pinHovered, pinSelected } from './components/MapPin';
 import './App.css'
 
 import { GoogleMaps, PinProperties } from '@yext/components-tsx-maps';
+import { useState } from 'react';
 
 const locations = [
   {
@@ -32,17 +33,21 @@ const propertiesForStatus = (status) => {
     .setZIndex(status.selected ? 1 : status.hovered || status.focused ? 2 : 0)
     .setHeight(status.selected ? 50 : 40)
     .setWidth(status.selected ? 50 : 40);
-}
+};
 const markerClickHandler = () => {};
 const markerHoverHandler = () => {};
 const markerFocusHandler = () => {};
 
+// App here would be a LocationMap or LocatorMap component
 function App() {
+  // Save shared state for selected markers
+  const [selectedMarkerId, setSelectedMarkerId] = useState('');
+
   return (
     <>
       <Map provider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14}>
         {locations.map((location, index) => 
-          <Marker key={location.id} id={location.id} index={index}
+          <Marker key={location.id} id={location.id} index={index} selectedMarkerId={selectedMarkerId} setSelectedMarkerId={setSelectedMarkerId}
                   markerRenderer={() => MarkerRenderer({ index: index, coordinate: location.coordinate, provider: GoogleMaps, height: 40, width: 40, icons: iconsForEntity, propertiesForStatus: propertiesForStatus })}
           />
         )}

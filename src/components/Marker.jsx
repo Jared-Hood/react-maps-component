@@ -7,8 +7,8 @@ const defaultProps = {
   markerHoverHandler: (hovered) => {},
 }
 
-export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHoverHandler, markerRenderer }) => {
-  const { map, selectedMarkerId, setSelectedMarkerId }  = useContext(MapContext);
+export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHoverHandler, markerRenderer, selectedMarkerId, setSelectedMarkerId }) => {
+  const { map }  = useContext(MapContext);
   const marker = markerRenderer();
 
   // todo: pass through status prop instead of declaring here

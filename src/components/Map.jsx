@@ -26,9 +26,6 @@ export const Map = (props) => {
   const [center, setCenter] = useState(defaultCenter);
   const [zoom, setZoom] = useState(defaultZoom);
 
-  // todo: move to another component
-  const [selectedMarkerId, setSelectedMarkerId] = useState('');
-
   // Call user defined panHandler and set center state on map move
   const _panHandler = (previousBounds, currentBounds) => {
     panHandler(previousBounds, currentBounds);
@@ -79,8 +76,6 @@ export const Map = (props) => {
         {map && (
           <MapContext.Provider value={{
             map: map,
-            selectedMarkerId: selectedMarkerId,
-            setSelectedMarkerId: setSelectedMarkerId
           }}>
             {props.children}
           </MapContext.Provider>
