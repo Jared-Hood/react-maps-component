@@ -1,5 +1,6 @@
 import { PinProperties, MapPinOptions } from '@yext/components-tsx-maps';
-import { useMemo } from 'react';
+import { useMemo, useContext } from 'react';
+import { MapContext } from "./Map";
 
 const getDefaultProps = ({
   coordinate = { lat: 0, lng: 0},
@@ -7,7 +8,6 @@ const getDefaultProps = ({
   icons = {},
   index = null,
   propertiesForStatus = status => new PinProperties(),
-  provider = null,
 }) => {
   return {
     coordinate,
@@ -15,13 +15,13 @@ const getDefaultProps = ({
     icons,
     index,
     propertiesForStatus,
-    provider,
   }
 };
 
 export const MarkerRenderer = (props) => {
   const defaultProps = getDefaultProps(props);
-  const { coordinate, hideOffscreen, icons, index, propertiesForStatus, provider } = defaultProps;
+  const { coordinate, hideOffscreen, icons, index, propertiesForStatus } = defaultProps;
+  const { provider }  = useContext(MapContext);
 
   const marker = useMemo(() => {
     const pinOptions = new MapPinOptions()

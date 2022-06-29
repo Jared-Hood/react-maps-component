@@ -74,7 +74,7 @@ function App() {
                   markerClickHandler={markerClickHandler}
                   markerFocusHandler={markerFocusHandler}
                   markerHoverHandler={markerHoverHandler}
-                  markerRenderer={ () => MarkerRenderer({ index: index, coordinate: location.coordinate, provider: GoogleMaps, height: 40, width: 40, icons: iconsForEntity, propertiesForStatus: propertiesForStatus }) }
+                  markerRenderer={ () => MarkerRenderer({ index: index, coordinate: location.coordinate, height: 40, width: 40, icons: iconsForEntity, propertiesForStatus: propertiesForStatus }) }
           />
         )}
       </Map>
