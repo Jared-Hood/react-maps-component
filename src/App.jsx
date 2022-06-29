@@ -44,17 +44,19 @@ const markerStatusOptions = {
 function App() {
   // Save shared state for selected markers
   const [selectedMarkerId, setSelectedMarkerId] = useState('');
+  const [focusedMarkerId, setFocusedMarkerId] = useState('');
+  const [hoveredMarkerId, setHoveredMarkerId] = useState('');
 
   // Set the state specific to these events
   // Each function is passed the setter and current state ref
-  const markerClickHandler = (currentStatusState, setStatusState) => {
-    setStatusState({...currentStatusState, selected: true });
+  const markerClickHandler = (id) => ()=> {
+    setSelectedMarkerId(id);
   };
-  const markerFocusHandler = (focused, currentStatusState, setStatusState) => {
-    setStatusState({...currentStatusState, focused: focused });
+  const markerFocusHandler = (id) => () => {
+    setFocusedMarkerId(id);
   };
-  const markerHoverHandler = (hovered, currentStatusState, setStatusState) => {
-    setStatusState({...currentStatusState, hovered: hovered });
+  const markerHoverHandler = (id) => () => {
+    setHoveredMarkerId(id);
   };
 
   const singlePinClickHandler = () => {
@@ -68,12 +70,14 @@ function App() {
           <Marker key={location.id}
                   id={location.id}
                   index={index}
-                  selectedMarkerId={selectedMarkerId}
-                  setSelectedMarkerId={setSelectedMarkerId}
-                  markerStatusOptions={markerStatusOptions}
-                  markerClickHandler={markerClickHandler}
-                  markerFocusHandler={markerFocusHandler}
-                  markerHoverHandler={markerHoverHandler}
+                  markerStatusOptions={{
+                    selected: location.id === selectedMarkerId,
+                    hovered: location.id === hoveredMarkerId,
+                    focused: location.id === focusedMarkerId,
+                  }}
+                  markerClickHandler={markerClickHandler(location.id)}
+                  markerFocusHandler={markerFocusHandler(location.id)}
+                  markerHoverHandler={markerHoverHandler(location.id)}
                   markerRenderer={ () => MarkerRenderer({ index: index, coordinate: location.coordinate, provider: GoogleMaps, height: 40, width: 40, icons: iconsForEntity, propertiesForStatus: propertiesForStatus }) }
           />
         )}
