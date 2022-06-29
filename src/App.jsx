@@ -1,10 +1,10 @@
 import { Map } from './components/Map';
 import { Marker } from './components/Marker';
-import { markerRenderer } from './components/MarkerRenderer';
+import { MarkerRenderer } from './components/MarkerRenderer';
 import { pinDefault, pinHovered, pinSelected } from './components/MapPin';
 import './App.css'
 
-import { GoogleMaps } from '@yext/components-tsx-maps';
+import { GoogleMaps, PinProperties } from '@yext/components-tsx-maps';
 
 const locations = [
   {
@@ -26,41 +26,32 @@ const iconsForEntity = (index) => ({
   hovered: pinHovered({index: index, backgroundColor: '#2E294E'}),
   selected: pinSelected({index: index, backgroundColor: '#1B998B'})
 });
-
-// Coud do something like this for each icon state
-// So that .withPropertiesForStatus(() => {}) wouldn't need to be specified as a props
-let completeIcons = (index) => { // does this need to be declared here 
-  return {
-    default: {
-      icon: pinDefault({index: index, backgroundColor: '#F46036'}),
-      height: 24,
-      width: 24,
-    },
-    hovered: {
-      icon: pinHovered({index: index, backgroundColor: '#2E294E'}),
-      height: 24,
-      width: 24
-    },
-    selected: {
-      icon: pinSelected({index: index, backgroundColor: '#2E294E'}),
-      height: 48,
-      width: 48
-    }
-  }
+const propertiesForStatus = (status) => {
+  return new PinProperties()
+    .setIcon(status.selected ? 'selected' : status.hovered || status.focused ? 'hovered' : 'default')
+    .setZIndex(status.selected ? 1 : status.hovered || status.focused ? 2 : 0)
+    .setHeight(status.selected ? 50 : 40)
+    .setWidth(status.selected ? 50 : 40);
 }
-
+const markerClickHandler = () => {};
+const markerHoverHandler = () => {};
+const markerFocusHandler = () => {};
 
 function App() {
   return (
     <>
       <Map provider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14}>
         {locations.map((location, index) => 
-          <Marker key={location.id} id={location.id} index={index} coordinate={location.coordinate} height={40} width={40} icons={iconsForEntity} />
+          <Marker key={location.id} id={location.id} index={index}
+                  markerRenderer={() => MarkerRenderer({ index: index, coordinate: location.coordinate, provider: GoogleMaps, height: 40, width: 40, icons: iconsForEntity, propertiesForStatus: propertiesForStatus })}
+          />
         )}
       </Map>
-      {/* <Map provider={GoogleMaps} clientKey={'gme-yextinc'}>
-        <Marker id={'123'} coordinate={{lat: 39.83, lng: -98.58}} height={80} width={80} pinClick={() => { window.open('https://yext.com', '_blank') }} />
-      </Map> */}
+      <Map provider={GoogleMaps} clientKey={'gme-yextinc'}>
+        <Marker id={'123'} pinClick={() => { window.open('https://yext.com', '_blank') }} 
+          markerRenderer={() => MarkerRenderer({ coordinate: { lat: 38.8954, lng: -77.0698 }, provider: GoogleMaps, height: 40, width: 40, icons: () => { return {'default': pinDefault({})} } })}
+        />
+      </Map>
     </>
   )
 }
