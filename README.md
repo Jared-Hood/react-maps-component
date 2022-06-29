@@ -22,6 +22,7 @@ props - anything that can be added in Map.js
 ## Marker Component
 
 contolled state
+- status
 
 props
 - coordinate

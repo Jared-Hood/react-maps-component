@@ -1,3 +1,4 @@
+import { MarkerRenderer } from "./MarkerRenderer";
 import { MapContext } from "./Map";
 import { pinDefault} from './MapPin';
 import { useContext, useEffect, useMemo, useState, useRef } from "react";

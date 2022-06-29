@@ -1,45 +1,74 @@
 import { useState, useRef, useEffect, createContext } from "react";
 import { MapOptions } from "@yext/components-tsx-maps";
 
-/**
- * Create a controlled component that uses the components-maps as an interface to the various map provider apis.
- */
-
 export const MapContext = createContext(null);
 
+const defaultProps = {
+  controlEnabled: true,
+  defaultCenter: { lat: 39.83, lng: -98.58 },
+  defaultZoom: 4,
+  padding: { bottom: () => 50, left: () => 50, right: () => 50, top: () => 50 },
+  panHandler: (previousBounds, currentBounds) => {},
+  panStartHandler: currentBounds => {},
+  provider: null,
+  providerOptions: {},
+  singlePinZoom: 14,
+};
+
 export const Map = (props) => {
-  const { mapProvider, clientKey, apiKey, defaultCenter, defaultZoom, setAutoBounds } = props;
+  const { clientKey, apiKey, controlEnabled, defaultCenter, defaultZoom, padding, panHandler, panStartHandler, provider, providerOptions, singlePinZoom } = props;
 
   const mapWrapper = useRef();
 	const [map, setMap] = useState();
   const [mapLoaded, setMapLoaded] = useState(false);
 
+  // Controlled properties that need to update on user interaction
+  const [center, setCenter] = useState(defaultCenter);
+  const [zoom, setZoom] = useState(defaultZoom);
+
+  // todo: move to another component
   const [selectedMarkerId, setSelectedMarkerId] = useState('');
 
-  // todo: Need to get center and zoom from map api events in order to update state
-  const [center, setCenter] = useState(defaultCenter ? defaultCenter : {lat: 39.83, lng: -98.58})
-  const [zoom, setZoom] = useState(defaultZoom ? defaultZoom : 4);
+  // Call user defined panHandler and set center state on map move
+  const _panHandler = (previousBounds, currentBounds) => {
+    panHandler(previousBounds, currentBounds);
+    const centerCoordinate = currentBounds.getCenter();
+    const centerLat = centerCoordinate.latitude;
+    const centerLng = centerCoordinate.longitude;
+    setCenter({ lat: centerLat, lng: centerLng });
+  }
+
+  // On center change get new zoom from map and set zoom state
+  useEffect(() => {
+    if (!mapLoaded || !map) return;
+    const zoom = map.getZoom();
+    setZoom(zoom);
+  }, [center]);
 
   useEffect(() => {
-		if (mapLoaded || map) return;
+		if (mapLoaded || map || !mapWrapper.current) return;
 		loadMap();
 		setMapLoaded(true);
 	});
 
   const loadMap = () => {
-		if (!mapWrapper.current) return;
+		const providerName = provider.getProviderName();
+		const loadOptions = providerName === 'Google' ? {client: clientKey} : {};
 
-		const mapProviderName = mapProvider.getProviderName();
-		const loadOptions = mapProviderName === 'Google' ? {client: clientKey} : {};
-
-		mapProvider.load(apiKey, {
+		provider.load(apiKey, {
 			...loadOptions
 		}).then(() => {
 			const providerMap = new MapOptions()
-        .withProvider(mapProvider)
-        .withWrapper(mapWrapper.current)
+        .withControlEnabled(controlEnabled)
         .withDefaultCenter(center)
         .withDefaultZoom(zoom)
+        .withPadding(padding)
+        .withPanHandler(_panHandler)
+        .withPanStartHandler(panStartHandler)
+        .withProvider(provider)
+        .withProviderOptions(providerOptions)
+        .withSinglePinZoom(singlePinZoom)
+        .withWrapper(mapWrapper.current)
         .build();
 			setMap(providerMap);
 		});
@@ -59,3 +88,5 @@ export const Map = (props) => {
     </div>
   )
 }
+
+Map.defaultProps = defaultProps;
