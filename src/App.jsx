@@ -1,5 +1,6 @@
 import { Map } from './components/Map';
 import { Marker } from './components/Marker';
+import { markerRenderer } from './components/MarkerRenderer';
 import { pinDefault, pinHovered, pinSelected } from './components/MapPin';
 import './App.css'
 
@@ -48,20 +49,17 @@ let completeIcons = (index) => { // does this need to be declared here
   }
 }
 
-const pinClick = () => {
-  window.open('https://yext.com', '_blank')
-}
 
 function App() {
   return (
     <>
       <Map provider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14}>
         {locations.map((location, index) => 
-          <Marker key={location.id} id={location.id} index={index} coordinate={location.coordinate} height={40} width={40} icons={iconsForEntity}/>
+          <Marker key={location.id} id={location.id} index={index} coordinate={location.coordinate} height={40} width={40} icons={iconsForEntity} />
         )}
       </Map>
       {/* <Map provider={GoogleMaps} clientKey={'gme-yextinc'}>
-        <Marker id={'123'} coordinate={{lat: 39.83, lng: -98.58}} height={80} width={80} pinClick={pinClick} />
+        <Marker id={'123'} coordinate={{lat: 39.83, lng: -98.58}} height={80} width={80} pinClick={() => { window.open('https://yext.com', '_blank') }} />
       </Map> */}
     </>
   )

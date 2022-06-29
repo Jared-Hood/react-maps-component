@@ -1,22 +1,52 @@
-import { MarkerRenderer } from "./MarkerRenderer";
 import { MapContext } from "./Map";
 import { pinDefault} from './MapPin';
 import { useContext, useEffect, useMemo, useState, useRef } from "react";
-import { PinProperties } from '@yext/components-tsx-maps';
+import { MapPinOptions, PinProperties } from '@yext/components-tsx-maps';
 
-const defaultIcons = (index) => {
-  return {
-    'default': pinDefault({index: index}),
-    'hovered': pinDefault({index: index}),
-    'selected': pinDefault({index: index})
-  }
-};
+const defaultProps = {
+  coordinate: { lat: 0, lng: 0},
+  height: 39,
+  hideOffscreen: false,
+  icons: (index) => {
+    return {
+      'default': pinDefault({index: index}),
+      'hovered': pinDefault({index: index}),
+      'selected': pinDefault({index: index})
+    }
+  },
+  propertiesForStatus: status => new PinProperties(),
+  provider: null,
+  width: 33,
+}
 
-export const Marker = ({ id, index, coordinate, height, width, icons, pinClick }) => {
-  const { map, selectedMarkerId, setSelectedMarkerId }  = useContext(MapContext);
-  const [pinHeight, setpinHeight] = useState(height ? height : 39);
-  const [pinWidth, setpinWidth] = useState(width ? width : 33);
-  const pinIcons = icons ? icons : defaultIcons;
+const renderMarker = (coordinate, icons, index, height, hideOffscreen, provider, width) => {
+  const pinOptions = new MapPinOptions()
+    .withCoordinate(coordinate)
+    .withHideOffscreen(hideOffscreen)
+    .withPropertiesForStatus(status => {
+      return new PinProperties()
+        .setIcon( status.selected ? 'selected' : status.hovered || status.focused ? 'hovered' : 'default')
+        .setSRText(index)
+        .setZIndex(status.selected ? 1 : status.hovered || status.focused ? 2 : 0)
+        .setHeight(height)
+        .setWidth(width);
+    })
+    .withProvider(provider);
+
+  Object.entries(icons(index)).forEach(([name, icon]) =>
+    pinOptions.withIcon(name, icon)
+  );
+
+  return pinOptions.build();
+}
+
+export const Marker = ({ coordinate, height, hideOffscreen, icons, id, index, width, pinClick }) => {
+  const { map, provider, selectedMarkerId, setSelectedMarkerId }  = useContext(MapContext);
+
+  // useMemo here? like https://github.com/visgl/react-map-gl/blob/7.0-release/src/components/marker.ts#L91
+  const marker = useMemo(() => {
+    return renderMarker(coordinate, icons, index, height, hideOffscreen, provider, width);
+  }, []);
 
   const [pinStatus, setPinStatus] = useState({  // pass through status prop instead of declaring here
     selected: false,
@@ -49,30 +79,6 @@ export const Marker = ({ id, index, coordinate, height, width, icons, pinClick }
       setPinStatus({ ...pinStatusRef.current, selected: true });
     }
   }, [selectedMarkerId])
-  
-  // useMemo here? like https://github.com/visgl/react-map-gl/blob/7.0-release/src/components/marker.ts#L91
-  // For click, hover, and focus I think the event handlers should be moved to here for the
-  // HTMLProviderPin classes, which include MapBox, Google.
-  // We could make a getElement() function and then directly add onClick to that
-
-  const marker = useMemo(() => {
-    const pinOptions = map.newPinOptions()
-      .withCoordinate(coordinate)
-      .withPropertiesForStatus(status => {
-        return new PinProperties()
-          .setIcon( status.selected ? 'selected' : status.hovered || status.focused ? 'hovered' : 'default')
-          .setSRText(index)
-          .setZIndex(status.selected ? 1 : status.hovered || status.focused ? 2 : 0)
-          .setHeight(pinHeight)
-          .setWidth(pinWidth);
-      });
-
-    Object.entries(pinIcons(index)).forEach(([name, icon]) =>
-      pinOptions.withIcon(name, icon)
-    );
-
-    return pinOptions.build();
-  }, []);
 
   useEffect(() => {
     marker.setMap(map);
@@ -91,3 +97,5 @@ export const Marker = ({ id, index, coordinate, height, width, icons, pinClick }
     }
   }, [pinStatus]);
 }
+
+Marker.defaultProps = defaultProps;
