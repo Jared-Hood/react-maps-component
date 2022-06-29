@@ -8,7 +8,7 @@ const defaultProps = {
   markerStatusOptions: {},
 }
 
-export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHoverHandler, markerRenderer, markerStatusOptions, selectedMarkerId, setSelectedMarkerId }) => {
+export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHoverHandler, markerRenderer, markerStatusOptions }) => {
   const { map }  = useContext(MapContext);
   const marker = markerRenderer();
 
@@ -18,7 +18,6 @@ export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHover
 
   const pinClickHandler = (id) => {
     markerClickHandler(pinStatusRef.current, setPinStatus);
-    setSelectedMarkerId(id);
   };
   const pinHoverHandler = (hovered) => {
     markerHoverHandler(hovered, pinStatusRef.current, setPinStatus);
@@ -28,12 +27,8 @@ export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHover
   }
 
   useEffect(() => {
-    if (id !== selectedMarkerId) {
-      setPinStatus({ ...pinStatusRef.current, selected: false });
-    } else if (id === selectedMarkerId) {
-      setPinStatus({ ...pinStatusRef.current, selected: true });
-    }
-  }, [selectedMarkerId])
+    setPinStatus({...pinStatusRef.current, ...markerStatusOptions})
+  }, [markerStatusOptions])
 
   useEffect(() => {
     marker.setMap(map);
