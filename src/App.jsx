@@ -34,27 +34,23 @@ const propertiesForStatus = (status) => {
     .setHeight(status.selected ? 50 : 40)
     .setWidth(status.selected ? 50 : 40);
 };
-const markerStatusOptions = {
-  selected: false,
-  hovered: false,
-  focused: false
-};
 
 // App here would be a LocationMap or LocatorMap component
 function App() {
   // Save shared state for selected markers
   const [selectedMarkerId, setSelectedMarkerId] = useState('');
+  const [hoveredMarkerId, setHoveredMarkerId] = useState('');
+  const [focusedMarkerId, setFocusedMarkerId] = useState('');
 
-  // Set the state specific to these events
-  // Each function is passed the setter and current state ref
-  const markerClickHandler = (currentStatusState, setStatusState) => {
-    setStatusState({...currentStatusState, selected: true });
+
+  const markerClickHandler = (id) => {
+    setSelectedMarkerId(id);
   };
-  const markerFocusHandler = (focused, currentStatusState, setStatusState) => {
-    setStatusState({...currentStatusState, focused: focused });
+  const markerFocusHandler = (focused, id) => {
+    setFocusedMarkerId(focused ? id: '')
   };
-  const markerHoverHandler = (hovered, currentStatusState, setStatusState) => {
-    setStatusState({...currentStatusState, hovered: hovered });
+  const markerHoverHandler = (hovered, id) => {
+    setHoveredMarkerId(hovered ? id : '');
   };
 
   const singlePinClickHandler = () => {
@@ -68,9 +64,11 @@ function App() {
           <Marker key={location.id}
                   id={location.id}
                   index={index}
-                  selectedMarkerId={selectedMarkerId}
-                  setSelectedMarkerId={setSelectedMarkerId}
-                  markerStatusOptions={markerStatusOptions}
+                  markerStatusOptions={{
+                    selected: location.id === selectedMarkerId,
+                    hovered: location.id === hoveredMarkerId,
+                    focused: location.id === focusedMarkerId,
+                  }}
                   markerClickHandler={markerClickHandler}
                   markerFocusHandler={markerFocusHandler}
                   markerHoverHandler={markerHoverHandler}

@@ -2,13 +2,13 @@ import { MapContext } from "./Map";
 import { useContext, useEffect, useState, useRef } from "react";
 
 const defaultProps = {
-  markerClickHandler: (currentStatusState, setStatusState) => {},
-  markerFocusHandler: (focused, currentStatusState, setStatusState) => {},
-  markerHoverHandler: (hovered, currentStatusState, setStatusState) => {},
+  markerClickHandler: (id) => {},
+  markerFocusHandler: (focused, id) => {},
+  markerHoverHandler: (hovered, id) => {},
   markerStatusOptions: {},
 }
 
-export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHoverHandler, markerRenderer, markerStatusOptions, selectedMarkerId, setSelectedMarkerId }) => {
+export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHoverHandler, markerRenderer, markerStatusOptions }) => {
   const { map }  = useContext(MapContext);
   const marker = markerRenderer();
 
@@ -17,29 +17,24 @@ export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHover
   pinStatusRef.current = pinStatus;
 
   const pinClickHandler = (id) => {
-    markerClickHandler(pinStatusRef.current, setPinStatus);
-    setSelectedMarkerId(id);
+    markerClickHandler(id);
   };
-  const pinHoverHandler = (hovered) => {
-    markerHoverHandler(hovered, pinStatusRef.current, setPinStatus);
+  const pinHoverHandler = (hovered, id) => {
+    markerHoverHandler(hovered, id);
   };
-  const pinFocusHandler = (focused) => {
-    markerFocusHandler(focused, pinStatusRef.current, setPinStatus);
-  }
+  const pinFocusHandler = (focused, id) => {
+    markerFocusHandler(focused, id);
+  };
 
   useEffect(() => {
-    if (id !== selectedMarkerId) {
-      setPinStatus({ ...pinStatusRef.current, selected: false });
-    } else if (id === selectedMarkerId) {
-      setPinStatus({ ...pinStatusRef.current, selected: true });
-    }
-  }, [selectedMarkerId])
+    setPinStatus({ ...pinStatusRef.current, ...markerStatusOptions });
+  }, [markerStatusOptions]);
 
   useEffect(() => {
     marker.setMap(map);
     marker.setClickHandler(() => { pinClickHandler(id) });
-    marker.setHoverHandler((hovered) => { pinHoverHandler(hovered) });
-    marker.setFocusHandler((focused) => { pinFocusHandler(focused) });
+    marker.setHoverHandler((hovered) => { pinHoverHandler(hovered, id) });
+    marker.setFocusHandler((focused) => { pinFocusHandler(focused, id) });
 
     return () => {
       marker.setMap(null);
