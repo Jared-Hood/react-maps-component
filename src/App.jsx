@@ -1,8 +1,9 @@
 import { Map } from './components/Map';
 import { Marker } from './components/Marker';
 import { MarkerRenderer } from './components/MarkerRenderer';
-import { pinDefault, pinHovered, pinSelected } from './components/MapPin';
+import { pinDefault, pinHovered, pinSelected } from './components/MapPins';
 import './App.css'
+import PinDefault from './components/PinDefault';
 
 import { GoogleMaps, PinProperties } from '@yext/components-tsx-maps';
 import { useState } from 'react';
@@ -13,7 +14,7 @@ const locations = [
     id: '1'
   },
   {
-    coordinate: { lat: 38.8954, lng: -77.0698 },
+    coordinate: { lat: 38.89511, lng: -77.07078 },
     id: '2'
   },
   {
@@ -29,10 +30,7 @@ const iconsForEntity = (index) => ({
 });
 const propertiesForStatus = (status) => {
   return new PinProperties()
-    .setIcon(status.selected ? 'selected' : status.hovered || status.focused ? 'hovered' : 'default')
     .setZIndex(status.selected ? 1 : status.hovered || status.focused ? 2 : 0)
-    .setHeight(status.selected ? 50 : 40)
-    .setWidth(status.selected ? 50 : 40);
 };
 
 // App here would be a LocationMap or LocatorMap component
@@ -41,7 +39,6 @@ function App() {
   const [selectedMarkerId, setSelectedMarkerId] = useState('');
   const [focusedMarkerId, setFocusedMarkerId] = useState('');
   const [hoveredMarkerId, setHoveredMarkerId] = useState('');
-
 
   const markerClickHandler = (id) => {
     setSelectedMarkerId(id);
@@ -72,15 +69,26 @@ function App() {
                   markerClickHandler={markerClickHandler}
                   markerFocusHandler={markerFocusHandler}
                   markerHoverHandler={markerHoverHandler}
-                  markerRenderer={ () => MarkerRenderer({ coordinate: location.coordinate, icons: iconsForEntity, index: index, propertiesForStatus: propertiesForStatus }) }
-          />
+                  coordinate={location.coordinate}
+                  hideOffscreen={false}
+                  propertiesForStatus={propertiesForStatus}
+          >
+            {
+              location.id === selectedMarkerId ? <PinDefault height={50} width={50} backgroundColor={'#1B998B'} index={index} /> :
+              (location.id === focusedMarkerId || location.id === hoveredMarkerId) ? <PinDefault height={39} width={33} backgroundColor={'#2E294E'} index={index} /> :
+              <PinDefault height={39} width={33} backgroundColor={'#F46036'} index={index} />
+            }
+          </Marker>
         )}
       </Map>
       <Map provider={GoogleMaps} clientKey={'gme-yextinc'}>
         <Marker id={'123'}
                 markerClickHandler={singlePinClickHandler}
-                markerRenderer={() => MarkerRenderer({ coordinate: { lat: 38.8954, lng: -77.0698 }, icons: () => { return {'default': pinDefault({})} } })}
-        />
+                coordinate={{ lat: 38.8954, lng: -77.0698 }}
+                hideOffscreen={false}
+        >
+          <PinDefault height={48} width={30} backgroundColor={'#F46036'} />
+        </Marker>
       </Map>
     </>
   )
