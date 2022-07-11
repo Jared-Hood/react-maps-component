@@ -72,7 +72,7 @@ export const Map = (props) => {
 	}
 
   return (
-    <div className="dir-map" id="map" ref={mapWrapper} style={{'height': 500}}>
+    <div className="dir-map" id="map" ref={mapWrapper}>
         {map && (
           <MapContext.Provider value={{
             map: map,

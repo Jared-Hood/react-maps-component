@@ -21,21 +21,29 @@ const getDefaultProps = ({
 export const MarkerRenderer = (props) => {
   const defaultProps = getDefaultProps(props);
   const { coordinate, hideOffscreen, icons, index, propertiesForStatus } = defaultProps;
-  const { provider }  = useContext(MapContext);
+  // const { provider }  = useContext(MapContext);
 
-  const marker = useMemo(() => {
-    const pinOptions = new MapPinOptions()
-      .withCoordinate(coordinate)
-      .withHideOffscreen(hideOffscreen)
-      .withPropertiesForStatus(propertiesForStatus)
-      .withProvider(provider);
+  const pinOptions = new MapPinOptions()
+    .withCoordinate(coordinate)
+    .withHideOffscreen(hideOffscreen)
+    .withPropertiesForStatus(propertiesForStatus);
+  Object.entries(icons(index)).forEach(([name, icon]) =>
+    pinOptions.withIcon(name, icon)
+  );
 
-    Object.entries(icons(index)).forEach(([name, icon]) =>
-      pinOptions.withIcon(name, icon)
-    );
+  // const marker = useMemo(() => {
+  //   const pinOptions = new MapPinOptions()
+  //     .withCoordinate(coordinate)
+  //     .withHideOffscreen(hideOffscreen)
+  //     .withPropertiesForStatus(propertiesForStatus)
+  //     .withProvider(provider);
 
-    return pinOptions.build();
-  }, []);
+  //   Object.entries(icons(index)).forEach(([name, icon]) =>
+  //     pinOptions.withIcon(name, icon)
+  //   );
 
-  return marker;
+  //   return pinOptions.build();
+  // }, []);
+
+  return pinOptions;
 }

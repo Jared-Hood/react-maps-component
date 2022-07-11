@@ -5,21 +5,22 @@ import { pinDefault, pinHovered, pinSelected } from './components/MapPins';
 import './App.css'
 import PinDefault from './components/PinDefault';
 
-import { GoogleMaps, PinProperties } from '@yext/components-tsx-maps';
+import { GoogleMaps, PinProperties, LeafletMaps, MapboxMaps } from '@yext/components-tsx-maps';
 import { useState } from 'react';
+import { useEffect } from 'react';
 
 const locations = [
   {
     coordinate: { lat: 38.8974, lng: -77.0638 },
-    id: '1'
+    id: '0'
   },
   {
     coordinate: { lat: 38.89511, lng: -77.07078 },
-    id: '2'
+    id: '1'
   },
   {
     coordinate: { lat: 38.8984, lng: -77.0698 },
-    id: '3'
+    id: '2'
   }
 ]
 
@@ -31,6 +32,13 @@ const iconsForEntity = (index) => ({
 const propertiesForStatus = (status) => {
   return new PinProperties()
     .setZIndex(status.selected ? 1 : status.hovered || status.focused ? 2 : 0)
+};
+const propertiesForStatus2 = (status) => {
+  return new PinProperties()
+    .setIcon(status.selected ? 'selected' : status.hovered || status.focused ? 'hovered' : 'default')
+    .setZIndex(status.selected ? 1 : status.hovered || status.focused ? 2 : 0)
+    .setHeight(status.selected ? 50 : 40)
+    .setWidth(status.selected ? 50 : 40);
 };
 
 // App here would be a LocationMap or LocatorMap component
@@ -54,8 +62,16 @@ function App() {
     window.open('https://yext.com', '_blank');
   }
 
+  const defaultStyles = {
+    position: 'absolute',
+    bottom: 0,
+    left: '50%',
+    transform: 'translateX(-50%)'
+  }
+
   return (
-    <>
+    <div className='App'>
+      <h2>Multi Marker Map with Pin Component</h2>
       <Map provider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14}>
         {locations.map((location, index) => 
           <Marker key={location.id}
@@ -81,16 +97,47 @@ function App() {
           </Marker>
         )}
       </Map>
-      <Map provider={GoogleMaps} clientKey={'gme-yextinc'}>
+
+      <h2>Multiple Marker Map with markerRenderer</h2>
+      <Map provider={LeafletMaps} apiKey={'pk.eyJ1IjoieWV4dCIsImEiOiJqNzVybUhnIn0.hTOO5A1yqfpN42-_z_GuLw'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14}>
+        {locations.map((location, index) => 
+          <Marker key={location.id}
+                  id={location.id}
+                  index={index}
+                  markerStatusOptions={{
+                    selected: location.id === selectedMarkerId,
+                    focused: location.id === focusedMarkerId,
+                    hovered: location.id === hoveredMarkerId,
+                  }}
+                  markerClickHandler={markerClickHandler}
+                  markerFocusHandler={markerFocusHandler}
+                  markerHoverHandler={markerHoverHandler}
+                  markerRenderer={ () => MarkerRenderer({ coordinate: location.coordinate, icons: iconsForEntity, index: index, propertiesForStatus: propertiesForStatus2 }) }
+          />
+        )}
+      </Map>
+
+      <h2>Single Marker Map with svg</h2>
+      <Map provider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }}>
         <Marker id={'123'}
                 markerClickHandler={singlePinClickHandler}
                 coordinate={{ lat: 38.8954, lng: -77.0698 }}
                 hideOffscreen={false}
         >
-          <PinDefault height={48} width={30} backgroundColor={'#F46036'} />
+          <svg width="30" height="48" fill="#F46036" viewBox="0 0 30 38" style={{...defaultStyles, cursor: "pointer"}}>
+            <path x="50%" y="40%" d="M30 15.0882C30 23.4212 23.3333 30.7353 15 38C7.22222 31.2941 0 23.4212 0 15.0882C0 6.75523 6.71573 0 15 0C23.2843 0 30 6.75523 30 15.0882Z"/>	
+          </svg>
         </Marker>
       </Map>
-    </>
+
+      <h2>Single Marker Map with markerRenderer</h2>
+      <Map provider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }}>
+        <Marker id={'123'}
+                markerClickHandler={singlePinClickHandler}
+                markerRenderer={() => MarkerRenderer({ coordinate: { lat: 38.8954, lng: -77.0698 }, icons: () => { return {'default': pinDefault({})} } })}
+        />
+      </Map>
+    </div>
   )
 }
 

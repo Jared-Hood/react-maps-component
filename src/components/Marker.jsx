@@ -14,18 +14,29 @@ const defaultProps = {
 // On a html pin
 export const Marker = ({ coordinate, hideOffscreen, propertiesForStatus, children, id, markerClickHandler, markerFocusHandler, markerHoverHandler, markerRenderer, markerStatusOptions }) => {
   const { map, provider }  = useContext(MapContext);
-  // const marker = markerRenderer();
-  const htmlMarker = useMemo(() => {
-    return new MapPinOptions()
-      .withCoordinate(coordinate)
-      .withHideOffscreen(hideOffscreen)
-      .withPropertiesForStatus(propertiesForStatus ? propertiesForStatus : () => new PinProperties())
-      .withProvider(provider)
-      .build();
-  }, []);
 
-  // todo: replace _pinEl with a getPinElement() function once created for HTMLProviderPin
-  const pinEl = htmlMarker.getProviderPin()._pinEl;
+  const marker = useMemo(() => {
+    if (children) {
+      // If children passed then create a MapPin and render the children into the pin element
+      // Only works for HTMLPins (Google, Mapbox, Bing, Baidu)
+      return new MapPinOptions()
+        .withCoordinate(coordinate)
+        .withHideOffscreen(hideOffscreen)
+        .withPropertiesForStatus(propertiesForStatus ? propertiesForStatus : () => new PinProperties())
+        .withProvider(provider)
+        .build();
+    } else if (markerRenderer) {
+      // Need to build here to avoid using useContent, useMemo inside of MarkerRender.jsx since
+      // You can't use hooks inside of other hooks
+      const markerRenderOptions = markerRenderer();
+      return markerRenderOptions
+        .withProvider(provider)
+        .build();
+    } else {
+      console.error("Add children or pass a markerRender prop");
+    }
+    return null;
+  }, []);
 
   const pinClickHandler = (id) => {
     markerClickHandler(id);
@@ -38,27 +49,24 @@ export const Marker = ({ coordinate, hideOffscreen, propertiesForStatus, childre
   };
 
   useEffect(() => {
-    // marker.setStatus({ ...markerStatusOptions });
-    htmlMarker.setStatus({ ...markerStatusOptions });
+    marker.setStatus({ ...markerStatusOptions });
   }, [markerStatusOptions]);
 
   useEffect(() => {
-    // marker.setMap(map);
-    // marker.setClickHandler(() => { pinClickHandler(id) });
-    // marker.setHoverHandler((hovered) => { pinHoverHandler(hovered, id) });
-    // marker.setFocusHandler((focused) => { pinFocusHandler(focused, id) });
-    htmlMarker.setMap(map);
-    htmlMarker.setClickHandler(() => { pinClickHandler(id) });
-    htmlMarker.setHoverHandler((hovered) => { pinHoverHandler(hovered, id) });
-    htmlMarker.setFocusHandler((focused) => { pinFocusHandler(focused, id) });
+    marker.setMap(map);
+    marker.setClickHandler(() => { pinClickHandler(id) });
+    marker.setHoverHandler((hovered) => { pinHoverHandler(hovered, id) });
+    marker.setFocusHandler((focused) => { pinFocusHandler(focused, id) });
 
     return () => {
-      // marker.setMap(null);
-      htmlMarker.setMap(null);
+      marker.setMap(null);
     }
   }, []);
 
-  return createPortal(children, pinEl)
+  if (children) {
+    const pinEl = marker.getProviderPin().getPinElement();
+    return createPortal(children, pinEl);
+  }
 }
 
 Marker.defaultProps = defaultProps;
