@@ -131,7 +131,7 @@ function App() {
       </Map>
 
       <h2>Single Marker Map with markerRenderer</h2>
-      <Map provider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }}>
+      <Map provider={LeafletMaps} apiKey={'pk.eyJ1IjoieWV4dCIsImEiOiJqNzVybUhnIn0.hTOO5A1yqfpN42-_z_GuLw'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }}>
         <Marker id={'123'}
                 markerClickHandler={singlePinClickHandler}
                 markerRenderer={() => MarkerRenderer({ coordinate: { lat: 38.8954, lng: -77.0698 }, icons: () => { return {'default': pinDefault({})} } })}

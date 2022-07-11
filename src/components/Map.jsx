@@ -20,7 +20,7 @@ export const Map = (props) => {
 
   const mapWrapper = useRef();
 	const [map, setMap] = useState();
-  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapScriptLoaded, setMapScriptLoaded] = useState(false);
 
   // Controlled properties that need to update on user interaction
   const [center, setCenter] = useState(defaultCenter);
@@ -37,16 +37,32 @@ export const Map = (props) => {
 
   // On center change get new zoom from map and set zoom state
   useEffect(() => {
-    if (!mapLoaded || !map) return;
+    if (!mapScriptLoaded || !map) return;
     const zoom = map.getZoom();
     setZoom(zoom);
   }, [center]);
 
   useEffect(() => {
-		if (mapLoaded || map || !mapWrapper.current) return;
+		if (mapScriptLoaded || map || !mapWrapper.current) return;
 		loadMap();
-		setMapLoaded(true);
 	});
+
+  useEffect(() => {
+    if (!mapScriptLoaded || map) return;
+    const providerMap = new MapOptions()
+      .withControlEnabled(controlEnabled)
+      .withDefaultCenter(center)
+      .withDefaultZoom(zoom)
+      .withPadding(padding)
+      .withPanHandler(_panHandler)
+      .withPanStartHandler(panStartHandler)
+      .withProvider(provider)
+      .withProviderOptions(providerOptions)
+      .withSinglePinZoom(singlePinZoom)
+      .withWrapper(mapWrapper.current)
+      .build();
+    setMap(providerMap);
+  }, [mapScriptLoaded])
 
   const loadMap = () => {
 		const providerName = provider.getProviderName();
@@ -55,20 +71,8 @@ export const Map = (props) => {
 		provider.load(apiKey, {
 			...loadOptions
 		}).then(() => {
-			const providerMap = new MapOptions()
-        .withControlEnabled(controlEnabled)
-        .withDefaultCenter(center)
-        .withDefaultZoom(zoom)
-        .withPadding(padding)
-        .withPanHandler(_panHandler)
-        .withPanStartHandler(panStartHandler)
-        .withProvider(provider)
-        .withProviderOptions(providerOptions)
-        .withSinglePinZoom(singlePinZoom)
-        .withWrapper(mapWrapper.current)
-        .build();
-			setMap(providerMap);
-		});
+      setMapScriptLoaded(true);
+    });
 	}
 
   return (
