@@ -13,41 +13,36 @@ const defaultProps = {
 // Marker can either take a renderer function or {coordiante, hideOffscreen, propertiesForStatus } to use createPortal
 // On a html pin
 export const Marker = (
-  { mapId,
+  {
+    children,
     coordinate,
     hideOffscreen,
-    propertiesForStatus,
-    zIndex,
-    children,
     id,
     markerClickHandler,
     markerFocusHandler,
     markerHoverHandler,
-    markerRenderer,
-    markerStatusOptions,
+    markerStatusOptions, // Only pass when using propertiesForStatus so MapPin can update
+    mapPinOptions,
+    propertiesForStatus, // Only if needed for specific functionality
+    zIndex,
   }
   ) => {
   const { map, provider }  = useContext(MapContext);
 
   const marker = useMemo(() => {
     if (children) {
-      // If children passed then create a MapPin and render the children into the pin element
-      // Only works for HTMLPins (Google, Mapbox, Bing, Baidu)
       return new MapPinOptions()
         .withCoordinate(coordinate)
         .withHideOffscreen(hideOffscreen)
         .withPropertiesForStatus(propertiesForStatus ? propertiesForStatus : () => new PinProperties())
         .withProvider(provider)
         .build();
-    } else if (markerRenderer) {
-      // Need to build here to avoid using useContent, useMemo inside of MarkerRender.jsx since
-      // You can't use hooks inside of other hooks
-      const markerRenderOptions = markerRenderer();
-      return markerRenderOptions
-        .withProvider(provider)
-        .build();
+    } else if (mapPinOptions) {
+        return mapPinOptions
+          .withProvider(provider)
+          .build();
     } else {
-      console.error("Add children or pass a markerRender prop");
+      console.error("Add children or pass a mapPinOptions prop");
     }
     return null;
   }, []);
@@ -69,7 +64,7 @@ export const Marker = (
   };
 
   // Setting the markerStatus will override any explicit zIndex that is passed
-  // Only needed for markers using propertiesForStatus
+  // Only needed for markers using propertiesForStatus, where zIndex should be set
   useEffect(() => {
     marker.setStatus({ ...markerStatusOptions });
   }, [markerStatusOptions]);
