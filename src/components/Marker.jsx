@@ -12,7 +12,21 @@ const defaultProps = {
 
 // Marker can either take a renderer function or {coordiante, hideOffscreen, propertiesForStatus } to use createPortal
 // On a html pin
-export const Marker = ({ coordinate, hideOffscreen, propertiesForStatus, children, id, markerClickHandler, markerFocusHandler, markerHoverHandler, markerRenderer, markerStatusOptions }) => {
+export const Marker = (
+  { mapId,
+    coordinate,
+    hideOffscreen,
+    propertiesForStatus,
+    zIndex,
+    children,
+    id,
+    markerClickHandler,
+    markerFocusHandler,
+    markerHoverHandler,
+    markerRenderer,
+    markerStatusOptions,
+  }
+  ) => {
   const { map, provider }  = useContext(MapContext);
 
   const marker = useMemo(() => {
@@ -38,6 +52,12 @@ export const Marker = ({ coordinate, hideOffscreen, propertiesForStatus, childre
     return null;
   }, []);
 
+  useEffect(() => {
+    if (!children || (zIndex !== 0 && !zIndex)) return;
+    const markerWrapper = marker.getProviderPin().getWrapperElement();
+    markerWrapper.style.zIndex = zIndex;
+  }, [zIndex]);
+
   const pinClickHandler = (id) => {
     markerClickHandler(id);
   };
@@ -48,6 +68,8 @@ export const Marker = ({ coordinate, hideOffscreen, propertiesForStatus, childre
     markerFocusHandler(focused, id);
   };
 
+  // Setting the markerStatus will override any explicit zIndex that is passed
+  // Only needed for markers using propertiesForStatus
   useEffect(() => {
     marker.setStatus({ ...markerStatusOptions });
   }, [markerStatusOptions]);

@@ -5,7 +5,7 @@ import { pinDefault, pinHovered, pinSelected } from './components/MapPins';
 import './App.css'
 import PinDefault from './components/PinDefault';
 
-import { GoogleMaps, PinProperties, LeafletMaps, MapboxMaps } from '@yext/components-tsx-maps';
+import { GoogleMaps, PinProperties, LeafletMaps, MapboxMaps, MapPinOptions } from '@yext/components-tsx-maps';
 import { useState } from 'react';
 import { useEffect } from 'react';
 
@@ -69,32 +69,60 @@ function App() {
     transform: 'translateX(-50%)'
   }
 
+  // const mapPinOptions = new MapPinOptions()
+  //   .withHideOffscreen(false)
+  //   .withIcon("default", pinDefault({}));
+
   return (
     <div className='App'>
       <h2>Multi Marker Map with Pin Component</h2>
+      {/*
+        You only need the markerStatusOptions if you are relying on the map api
+        to update the pin for you. Otherwise setting the pin icon and zIndex is enough
+      */}
       <Map provider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14}>
-        {locations.map((location, index) => 
-          <Marker key={location.id}
-                  id={location.id}
-                  index={index}
-                  markerStatusOptions={{
-                    selected: location.id === selectedMarkerId,
-                    focused: location.id === focusedMarkerId,
-                    hovered: location.id === hoveredMarkerId,
-                  }}
-                  markerClickHandler={markerClickHandler}
-                  markerFocusHandler={markerFocusHandler}
-                  markerHoverHandler={markerHoverHandler}
-                  coordinate={location.coordinate}
-                  hideOffscreen={false}
-                  propertiesForStatus={propertiesForStatus}
+        {locations.map((location, index) =>
+          <Marker 
+            key={location.id}
+            id={location.id}
+            index={index}
+            markerClickHandler={markerClickHandler}
+            markerFocusHandler={markerFocusHandler}
+            markerHoverHandler={markerHoverHandler}
+            coordinate={location.coordinate}
+            hideOffscreen={false}
+            // propertiesForStatus={propertiesForStatus} // Optional if something custom is needed
+            zIndex={location.id === selectedMarkerId ? 1 : (location.id === focusedMarkerId || location.id === hoveredMarkerId) ? 2 : 0}
+            mapId={"Map 1"}
           >
             {
-              location.id === selectedMarkerId ? <PinDefault height={50} width={50} backgroundColor={'#1B998B'} index={index} /> :
+              location.id === selectedMarkerId ? <PinDefault height={70} width={70} backgroundColor={'#1B998B'} index={index} /> :
               (location.id === focusedMarkerId || location.id === hoveredMarkerId) ? <PinDefault height={39} width={33} backgroundColor={'#2E294E'} index={index} /> :
               <PinDefault height={39} width={33} backgroundColor={'#F46036'} index={index} />
             }
           </Marker>
+        )}
+      </Map>
+
+      <h2>Multi Marker Map with Pin Component and Custom Marker</h2>
+      <Map provider={GoogleMaps} clientKey={'gme-yextinc'} defaultCenter={{ lat: 38.8954, lng: -77.0698 }} defaultZoom={14}>
+        {locations.map((location, index) =>
+          <CustomMarker
+            key={location.id}
+            id={location.id}
+            index={index}
+            markerStatusOptions={{
+              selected: location.id === selectedMarkerId,
+              focused: location.id === focusedMarkerId,
+              hovered: location.id === hoveredMarkerId,
+            }}
+            markerClickHandler={markerClickHandler}
+            markerFocusHandler={markerFocusHandler}
+            markerHoverHandler={markerHoverHandler}
+            coordinate={location.coordinate}
+            hideOffscreen={false}
+            mapId={"Map 2"}
+          />
         )}
       </Map>
 
@@ -112,7 +140,14 @@ function App() {
                   markerClickHandler={markerClickHandler}
                   markerFocusHandler={markerFocusHandler}
                   markerHoverHandler={markerHoverHandler}
-                  markerRenderer={ () => MarkerRenderer({ coordinate: location.coordinate, icons: iconsForEntity, index: index, propertiesForStatus: propertiesForStatus2 }) }
+                  markerRenderer={ () => MarkerRenderer(
+                    {
+                      coordinate: location.coordinate,
+                      icons: iconsForEntity,
+                      index: index,
+                      propertiesForStatus: propertiesForStatus2
+                    }
+                  )}
           />
         )}
       </Map>
@@ -138,6 +173,21 @@ function App() {
         />
       </Map>
     </div>
+  )
+}
+
+function CustomMarker(props) {
+  const {markerStatusOptions, ...rest} = props;
+  const { selected, hovered, focused } = markerStatusOptions;
+  return (
+    <Marker {...rest} zIndex={ selected ? 1 : hovered || focused ? 2 : 0}>
+      <PinDefault
+        height={selected ? 70 : 39}
+        width={selected ? 70 : 33}
+        backgroundColor={selected ? '#1B998B' : hovered || focused ? '#2E294E' : '#F46036'}
+        index={props.index}
+      />
+    </Marker>
   )
 }
 
