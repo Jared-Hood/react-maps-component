@@ -1,5 +1,7 @@
 import { MapContext } from "./Map";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useMemo } from "react";
+import {createPortal} from 'react-dom';
+import { MapPinOptions, PinProperties } from "@yext/components-tsx-maps";
 
 const defaultProps = {
   markerClickHandler: (id) => {},
@@ -8,9 +10,48 @@ const defaultProps = {
   markerStatusOptions: {},
 }
 
-export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHoverHandler, markerRenderer, markerStatusOptions }) => {
-  const { map }  = useContext(MapContext);
-  const marker = markerRenderer();
+// Marker can either take a renderer function or {coordiante, hideOffscreen, propertiesForStatus } to use createPortal
+// On a html pin
+export const Marker = (
+  {
+    children,
+    coordinate,
+    hideOffscreen,
+    id,
+    markerClickHandler,
+    markerFocusHandler,
+    markerHoverHandler,
+    markerStatusOptions, // Only pass when using propertiesForStatus so MapPin can update
+    mapPinOptions,
+    propertiesForStatus, // Only if needed for specific functionality
+    zIndex,
+  }
+  ) => {
+  const { map, provider }  = useContext(MapContext);
+
+  const marker = useMemo(() => {
+    if (children) {
+      return new MapPinOptions()
+        .withCoordinate(coordinate)
+        .withHideOffscreen(hideOffscreen)
+        .withPropertiesForStatus(propertiesForStatus ? propertiesForStatus : () => new PinProperties())
+        .withProvider(provider)
+        .build();
+    } else if (mapPinOptions) {
+        return mapPinOptions
+          .withProvider(provider)
+          .build();
+    } else {
+      console.error("Add children or pass a mapPinOptions prop");
+    }
+    return null;
+  }, []);
+
+  useEffect(() => {
+    if (zIndex !== 0 && !zIndex) return;
+    const markerWrapper = marker.getProviderPin().getWrapperElement();
+    markerWrapper.style.zIndex = zIndex;
+  }, [zIndex]);
 
   const pinClickHandler = (id) => {
     markerClickHandler(id);
@@ -22,6 +63,8 @@ export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHover
     markerFocusHandler(focused, id);
   };
 
+  // Setting the markerStatus will override any explicit zIndex that is passed
+  // Only needed for markers using propertiesForStatus, where zIndex should be set
   useEffect(() => {
     marker.setStatus({ ...markerStatusOptions });
   }, [markerStatusOptions]);
@@ -36,6 +79,11 @@ export const Marker = ({ id, markerClickHandler, markerFocusHandler, markerHover
       marker.setMap(null);
     }
   }, []);
+
+  if (children) {
+    const pinEl = marker.getProviderPin().getPinElement();
+    return createPortal(children, pinEl);
+  }
 }
 
 Marker.defaultProps = defaultProps;
