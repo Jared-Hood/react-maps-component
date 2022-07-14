@@ -120,7 +120,7 @@ function App() {
                 .withPropertiesForStatus(
                   status => new PinProperties()
                     .setIcon(status.selected ? 'selected' : status.hovered || status.focused ? 'hovered' : 'default')
-                    .setZIndex(status.selected ? 1 : status.hovered || status.focused ? 2 : 0)
+                    .setZIndex(status.selected ? 1000 : status.hovered || status.focused ? 2000 : 0)
                     .setHeight(status.selected ? 50 : 40)
                     .setWidth(status.selected ? 50 : 40)
                 )

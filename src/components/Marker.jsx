@@ -48,7 +48,7 @@ export const Marker = (
   }, []);
 
   useEffect(() => {
-    if (!children || (zIndex !== 0 && !zIndex)) return;
+    if (zIndex !== 0 && !zIndex) return;
     const markerWrapper = marker.getProviderPin().getWrapperElement();
     markerWrapper.style.zIndex = zIndex;
   }, [zIndex]);
